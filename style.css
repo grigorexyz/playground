@@ -18,3 +18,10 @@ h1 {
 p {
   color: #8b949e;
 }
+
+canvas {
+  margin-top: 1.5rem;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  image-rendering: pixelated;
+}
