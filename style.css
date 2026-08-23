@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,6 +8,7 @@ body {
   background: #0d1117;
   color: #e6edf3;
   text-align: center;
+  padding: 1.5rem 0;
 }
 
 h1 {
@@ -19,9 +20,94 @@ p {
   color: #8b949e;
 }
 
-canvas {
+main {
+  width: 100%;
+  max-width: 640px;
+}
+
+#comet-app {
   margin-top: 1.5rem;
   border: 1px solid #30363d;
-  border-radius: 4px;
-  image-rendering: pixelated;
+  border-radius: 8px;
+  padding: 1rem 1.5rem 1.5rem;
+  background: #161b22;
+  text-align: left;
+}
+
+#comet-app .status {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e6edf3;
+  text-align: center;
+}
+
+#comet-app .ai-info,
+#comet-app .hint {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+#comet-app .hand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+#comet-app .card {
+  font-size: 1.1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background: #21262d;
+  color: #6e7681;
+  cursor: not-allowed;
+}
+
+#comet-app .card.playable {
+  color: #e6edf3;
+  border-color: #58a6ff;
+  cursor: pointer;
+}
+
+#comet-app .card.playable:hover {
+  background: #1f6feb;
+  color: #ffffff;
+}
+
+#comet-app h3 {
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+  color: #8b949e;
+}
+
+#comet-app .log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 10rem;
+  overflow-y: auto;
+  font-size: 0.85rem;
+  color: #8b949e;
+}
+
+#comet-app .log li {
+  padding: 0.15rem 0;
+  border-bottom: 1px solid #21262d;
+}
+
+#comet-app .new-game {
+  display: block;
+  margin: 1rem auto 0;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background: #21262d;
+  color: #e6edf3;
+  cursor: pointer;
+}
+
+#comet-app .new-game:hover {
+  background: #30363d;
 }
