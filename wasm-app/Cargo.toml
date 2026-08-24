@@ -2,7 +2,7 @@
 name = "wasm-app"
 version = "0.1.0"
 edition = "2021"
-description = "A minimal Rust + WebAssembly demo inspired by tsoding/koil and Qlaybit/comet."
+description = "A Rust + WebAssembly prototype of the Comet shedding card game (qlayground.net/games/view.php?slug=comet)."
 license = "MIT"
 publish = false
 
@@ -19,9 +19,7 @@ features = [
   "Window",
   "Document",
   "Element",
-  "HtmlCanvasElement",
-  "CanvasRenderingContext2d",
-  "ImageData",
+  "HtmlButtonElement",
   "console",
 ]
 
