@@ -1,35 +1,48 @@
 # Playground
 
-A Rust + WebAssembly prototype of the **Comet** shedding card game
-(https://qlayground.net/games/view.php?slug=comet), played against a
-simple AI opponent in the browser.
+A Rust + WebAssembly + **WebGPU** simulated desktop that runs entirely in
+the browser: `index.html` is just a full-viewport `<canvas>`, and every
+pixel on screen — window chrome, a taskbar, and the apps running inside
+it — is drawn from Rust through [`wgpu`](https://github.com/gfx-rs/wgpu)
+targeting WebGPU. There's no other HTML, CSS or JavaScript beyond making
+that canvas fill the page and loading the wasm module.
 
-## Rules implemented
+The first (and so far only) app running on the desktop is **Comet**, a
+shedding card game (https://qlayground.net/games/view.php?slug=comet)
+played against a simple AI opponent.
 
-- A standard 52-card deck (ranks 2–Ace, four suits) is dealt evenly
-  between you and the AI (26 cards each), with the 9 of Diamonds
-  replaced by the wildcard **Comet** card.
-- Whoever holds the lowest card leads the first run.
-- Players alternate extending an ascending run of any suit; if you
-  can't beat the current rank (and don't hold the Comet), your turn is
-  skipped.
-- The Comet can be played on any rank and simply raises the run's
-  required rank by one.
-- Playing a King ends the run immediately; that same player then leads
-  a fresh run.
-- If neither player can continue a run, it dies and whoever played
-  last starts a new one.
-- First to empty their hand wins; emptying it with the Comet as the
-  final card is a bonus win.
+## Architecture
 
-The game engine lives in [`wasm-app/src/comet.rs`](./wasm-app/src/comet.rs)
-and is unit-tested with `cargo test`. The Rust crate in
-[`wasm-app/`](./wasm-app) uses the idiomatic
-[`wasm-bindgen`](https://github.com/rustwasm/wasm-bindgen) +
-[`web-sys`](https://docs.rs/web-sys) stack (built with
-[`wasm-pack`](https://github.com/rustwasm/wasm-pack)) to render the game
-directly into the DOM — no canvas, just clickable card buttons and a
-running log.
+- [`wasm-app/src/comet.rs`](./wasm-app/src/comet.rs) — the Comet rules
+  engine. Pure Rust, no `wasm-bindgen`/`wgpu` dependency, unit-tested with
+  `cargo test` and buildable/testable on any target.
+- [`wasm-app/src/app/gpu.rs`](./wasm-app/src/app/gpu.rs) — the WebGPU
+  backend: sets up the `wgpu` device/surface against the canvas and
+  draws every rectangle on screen as one instanced-quad pipeline
+  (see [`shader.wgsl`](./wasm-app/src/app/shader.wgsl)).
+- [`wasm-app/src/app/font.rs`](./wasm-app/src/app/font.rs) /
+  [`painter.rs`](./wasm-app/src/app/painter.rs) — a tiny hand-authored
+  5x7 bitmap font and an immediate-mode "painter" that turns rectangles
+  and text into GPU quad instances; there's no HTML/CSS text or
+  canvas-2D/font-rendering crate involved.
+- [`wasm-app/src/app/desktop.rs`](./wasm-app/src/app/desktop.rs) — a
+  minimal window manager (draggable/closable windows, focus, a taskbar)
+  and the `App` trait that pluggable programs implement.
+- [`wasm-app/src/app/apps/comet_app.rs`](./wasm-app/src/app/apps/comet_app.rs) —
+  wires the Comet engine into an `App`, rendering cards/log/status with
+  the quad/text painter and turning clicks into `Game::play` calls.
+- [`wasm-app/src/app/mod.rs`](./wasm-app/src/app/mod.rs) — bootstraps
+  the canvas, initializes WebGPU asynchronously, wires up pointer/resize
+  events, and drives the whole thing from a `requestAnimationFrame` loop.
+  This module (and everything under `app/`) is only compiled for
+  `wasm32` targets, so `cargo test` on the host still works.
+
+### Browser support
+
+WebGPU isn't available in every browser yet (recent Chrome/Edge have it;
+Firefox/Safari support is still rolling out). If `navigator.gpu`/the
+WebGPU adapter request fails, the app falls back to a plain text message
+in the page instead of a blank canvas.
 
 ## Building locally
 
@@ -42,7 +55,8 @@ cargo install wasm-pack
 wasm-pack build wasm-app --target web --release --out-dir ../pkg
 ```
 
-Then serve the repository root and open `index.html`, e.g.:
+Then serve the repository root and open `index.html` in a WebGPU-capable
+browser, e.g.:
 
 ```sh
 python3 -m http.server
@@ -58,4 +72,5 @@ cd wasm-app && cargo test
 
 Pushes to `master` trigger [`.github/workflows/pages.yml`](.github/workflows/pages.yml),
 which builds the wasm package and deploys the site to GitHub Pages.
+
 
